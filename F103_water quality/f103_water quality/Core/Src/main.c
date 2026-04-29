@@ -144,7 +144,7 @@ int main(void)
 		}
 		
 		uint32_t ph_raw = ADC2_ReadValue();
-		float ph_value = (float)ph_raw * 3.3 / 4095 * 5.0;
+		float ph_value = 14.0f - (float)ph_raw * 14.0f / 4095.0f;
 		uint16_t ph_int = (uint16_t)(ph_value * 10);
 		OLED_ShowNum(32, 40, ph_int / 10, 1, 16, 1);
 		OLED_ShowChar(40, 40, '.', 16, 1);
