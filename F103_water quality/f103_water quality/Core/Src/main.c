@@ -155,6 +155,24 @@ int main(void)
 		sprintf(uart_buffer, "Temp:%.1fC,Turbidity:%d,PH:%.1f\r\n", temp, turbidity, ph_value);
 		HAL_UART_Transmit(&huart2, (uint8_t*)uart_buffer, strlen(uart_buffer), 0xFFFF);
 		
+		if(turbidity < thresholds.turbidity)
+		{
+			sprintf(uart_buffer, "ALARM: Turbidity low (%d < %d)\r\n", turbidity, thresholds.turbidity);
+			HAL_UART_Transmit(&huart2, (uint8_t*)uart_buffer, strlen(uart_buffer), 0xFFFF);
+		}
+		
+		if(temp >= -100.0f && temp < thresholds.temperature)
+		{
+			sprintf(uart_buffer, "ALARM: Temperature low (%.1f < %d)\r\n", temp, thresholds.temperature);
+			HAL_UART_Transmit(&huart2, (uint8_t*)uart_buffer, strlen(uart_buffer), 0xFFFF);
+		}
+		
+		if(ph_value < thresholds.ph)
+		{
+			sprintf(uart_buffer, "ALARM: PH low (%.1f < %d)\r\n", ph_value, thresholds.ph);
+			HAL_UART_Transmit(&huart2, (uint8_t*)uart_buffer, strlen(uart_buffer), 0xFFFF);
+		}
+		
 		UART_ProcessCommand();
 		
 		HAL_Delay(3000);

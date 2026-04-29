@@ -32,11 +32,21 @@ void UART_ProcessCommand(void)
     {
         uint32_t value;
         uint8_t valid_command = 0;
-        char response[32];
+        char response[64];
         
         if(strstr((char*)uart_rx_buf, "CONNECT") != NULL || 
            strstr((char*)uart_rx_buf, "DISCONNECT") != NULL)
         {
+            uart_rx_len = 0;
+            uart_rx_complete = 0;
+            return;
+        }
+        
+        if(strcmp((char*)uart_rx_buf, "read") == 0)
+        {
+            sprintf(response, "tur:%d,tmp:%d,ph:%d\r\n", 
+                    thresholds.turbidity, thresholds.temperature, thresholds.ph);
+            HAL_UART_Transmit(&huart2, (uint8_t*)response, strlen(response), 0xFFFF);
             uart_rx_len = 0;
             uart_rx_complete = 0;
             return;
