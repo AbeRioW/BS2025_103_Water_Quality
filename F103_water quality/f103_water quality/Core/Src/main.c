@@ -18,12 +18,14 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include "adc.h"
 #include "usart.h"
 #include "gpio.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "oled.h"
+#include "ds18b20.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -65,7 +67,6 @@ void SystemClock_Config(void);
 int main(void)
 {
 
-	 uint8_t test[2]={0x01,0x02};
   /* USER CODE BEGIN 1 */
 
   /* USER CODE END 1 */
@@ -89,6 +90,8 @@ int main(void)
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   MX_USART2_UART_Init();
+  MX_ADC1_Init();
+  MX_ADC2_Init();
   /* USER CODE BEGIN 2 */
 	OLED_Init();
 	OLED_ColorTurn(0);
@@ -98,15 +101,50 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-	OLED_ShowString(0,0,(uint8_t*)"Welcome",16,1);
+	OLED_ShowString(0,0,(uint8_t*)"Turbidity:",16,1);
+	OLED_ShowString(0,20,(uint8_t*)"Temp:",16,1);
+	OLED_ShowString(0,40,(uint8_t*)"PH:",16,1);
 	OLED_Refresh();
   while (1)
   {
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-		HAL_UART_Transmit(&huart2,test,2,0xffff);
-		HAL_Delay(2000);
+		uint32_t turbidity = ADC1_ReadValue();
+		OLED_ShowNum(88, 0, turbidity, 4, 16, 1);
+		
+		float temp = DS18B20_Get_Temp();
+		if(temp < -100.0f)
+		{
+			OLED_ShowString(48, 20, (uint8_t*)"Err", 16, 1);
+		}
+		else
+		{
+			int16_t temp_int = (int16_t)(temp * 10);
+			if(temp_int < 0)
+			{
+				OLED_ShowChar(48, 20, '-', 16, 1);
+				temp_int = -temp_int;
+			}
+			else
+			{
+				OLED_ShowChar(48, 20, ' ', 16, 1);
+			}
+			OLED_ShowNum(56, 20, temp_int / 10, 2, 16, 1);
+			OLED_ShowChar(72, 20, '.', 16, 1);
+			OLED_ShowNum(80, 20, temp_int % 10, 1, 16, 1);
+			OLED_ShowChar(88, 20, 'C', 16, 1);
+		}
+		
+		uint32_t ph_raw = ADC2_ReadValue();
+		float ph_value = (float)ph_raw * 3.3 / 4095 * 5.0;
+		uint16_t ph_int = (uint16_t)(ph_value * 10);
+		OLED_ShowNum(32, 40, ph_int / 10, 1, 16, 1);
+		OLED_ShowChar(40, 40, '.', 16, 1);
+		OLED_ShowNum(48, 40, ph_int % 10, 1, 16, 1);
+		
+		OLED_Refresh();
+		HAL_Delay(1000);
   }
   /* USER CODE END 3 */
 }
@@ -119,6 +157,7 @@ void SystemClock_Config(void)
 {
   RCC_OscInitTypeDef RCC_OscInitStruct = {0};
   RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
+  RCC_PeriphCLKInitTypeDef PeriphClkInit = {0};
 
   /** Initializes the RCC Oscillators according to the specified parameters
   * in the RCC_OscInitTypeDef structure.
@@ -145,6 +184,12 @@ void SystemClock_Config(void)
   RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
 
   if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_2) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_ADC;
+  PeriphClkInit.AdcClockSelection = RCC_ADCPCLK2_DIV6;
+  if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit) != HAL_OK)
   {
     Error_Handler();
   }

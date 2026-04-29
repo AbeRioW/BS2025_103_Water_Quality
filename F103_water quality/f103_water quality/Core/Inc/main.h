@@ -67,6 +67,8 @@ void Error_Handler(void);
 #define LCD_DC_GPIO_Port GPIOA
 #define LCD_CS_Pin GPIO_PIN_1
 #define LCD_CS_GPIO_Port GPIOA
+#define DS18B20_Pin GPIO_PIN_5
+#define DS18B20_GPIO_Port GPIOB
 
 /* USER CODE BEGIN Private defines */
 
