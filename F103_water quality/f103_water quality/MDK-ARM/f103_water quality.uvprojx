@@ -779,6 +779,11 @@
               <FileType>1</FileType>
               <FilePath>..\APP\ds18b20.c</FilePath>
             </File>
+            <File>
+              <FileName>threshold.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\APP\threshold.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

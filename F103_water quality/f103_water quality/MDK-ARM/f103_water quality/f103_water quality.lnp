@@ -23,6 +23,7 @@
 "f103_water quality\system_stm32f1xx.o"
 "f103_water quality\oled.o"
 "f103_water quality\ds18b20.o"
+"f103_water quality\threshold.o"
 --strict --scatter "f103_water quality\f103_water quality.sct"
 --summary_stderr --info summarysizes --map --load_addr_map_info --xref --callgraph --symbols
 --info sizes --info totals --info unused --info veneers

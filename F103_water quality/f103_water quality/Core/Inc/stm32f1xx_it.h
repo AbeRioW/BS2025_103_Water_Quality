@@ -55,8 +55,11 @@ void SVC_Handler(void);
 void DebugMon_Handler(void);
 void PendSV_Handler(void);
 void SysTick_Handler(void);
+void USART2_IRQHandler(void);
 /* USER CODE BEGIN EFP */
-
+extern uint8_t uart_rx_buf[];
+extern uint8_t uart_rx_len;
+extern uint8_t uart_rx_complete;
 /* USER CODE END EFP */
 
 #ifdef __cplusplus

@@ -33,3 +33,6 @@ f103_water quality\main.o: ../Core/Inc/usart.h
 f103_water quality\main.o: ../Core/Inc/gpio.h
 f103_water quality\main.o: ../APP/oled.h
 f103_water quality\main.o: ../APP/ds18b20.h
+f103_water quality\main.o: ../APP/threshold.h
+f103_water quality\main.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdio.h
+f103_water quality\main.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h

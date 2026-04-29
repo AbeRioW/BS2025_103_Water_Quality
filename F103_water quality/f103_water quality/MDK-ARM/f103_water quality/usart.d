@@ -29,3 +29,7 @@ f103_water quality\usart.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_fl
 f103_water quality\usart.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_flash_ex.h
 f103_water quality\usart.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_pwr.h
 f103_water quality\usart.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_uart.h
+f103_water quality\usart.o: ../APP/threshold.h
+f103_water quality\usart.o: ../Core/Inc/stm32f1xx_it.h
+f103_water quality\usart.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
+f103_water quality\usart.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdio.h

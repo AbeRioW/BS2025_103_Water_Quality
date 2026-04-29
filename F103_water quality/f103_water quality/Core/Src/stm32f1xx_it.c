@@ -22,6 +22,8 @@
 #include "stm32f1xx_it.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "usart.h"
+#include <string.h>
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -199,5 +201,49 @@ void SysTick_Handler(void)
 /******************************************************************************/
 
 /* USER CODE BEGIN 1 */
+#define UART_RX_BUF_SIZE 32
 
+uint8_t uart_rx_buf[UART_RX_BUF_SIZE];
+uint8_t uart_rx_len = 0;
+uint8_t uart_rx_complete = 0;
+
+void USART2_IRQHandler(void)
+{
+    uint8_t data;
+    
+    if(huart2.Instance->SR & (USART_SR_ORE | USART_SR_NE | USART_SR_FE | USART_SR_PE))
+    {
+        uart_rx_len = 0;
+        uart_rx_complete = 0;
+        
+        huart2.Instance->SR &= ~(USART_SR_ORE | USART_SR_NE | USART_SR_FE | USART_SR_PE);
+        data = huart2.Instance->DR;
+    }
+    
+    if(huart2.Instance->SR & USART_SR_RXNE)
+    {
+        data = huart2.Instance->DR;
+        
+        if(data == '\n')
+        {
+            if(uart_rx_len > 0)
+            {
+                uart_rx_buf[uart_rx_len] = '\0';
+                uart_rx_complete = 1;
+            }
+            uart_rx_len = 0;
+        }
+        else if(data != '\r')
+        {
+            if(uart_rx_len < UART_RX_BUF_SIZE - 1)
+            {
+                uart_rx_buf[uart_rx_len++] = data;
+            }
+            else
+            {
+                uart_rx_len = 0;
+            }
+        }
+    }
+}
 /* USER CODE END 1 */

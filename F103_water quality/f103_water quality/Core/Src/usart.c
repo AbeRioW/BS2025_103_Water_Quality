@@ -21,7 +21,57 @@
 #include "usart.h"
 
 /* USER CODE BEGIN 0 */
+#include "threshold.h"
+#include "stm32f1xx_it.h"
+#include <string.h>
+#include <stdio.h>
 
+void UART_ProcessCommand(void)
+{
+    if(uart_rx_complete)
+    {
+        uint32_t value;
+        uint8_t valid_command = 0;
+        char response[32];
+        
+        if(strstr((char*)uart_rx_buf, "CONNECT") != NULL || 
+           strstr((char*)uart_rx_buf, "DISCONNECT") != NULL)
+        {
+            uart_rx_len = 0;
+            uart_rx_complete = 0;
+            return;
+        }
+        
+        if(sscanf((char*)uart_rx_buf, "tur:%lu", &value) == 1)
+        {
+            Threshold_SetTurbidity(value);
+            valid_command = 1;
+            sprintf(response, "tur:%lu OK\r\n", value);
+            HAL_UART_Transmit(&huart2, (uint8_t*)response, strlen(response), 0xFFFF);
+        }
+        else if(sscanf((char*)uart_rx_buf, "tmp:%lu", &value) == 1)
+        {
+            Threshold_SetTemperature((uint16_t)value);
+            valid_command = 1;
+            sprintf(response, "tmp:%lu OK\r\n", value);
+            HAL_UART_Transmit(&huart2, (uint8_t*)response, strlen(response), 0xFFFF);
+        }
+        else if(sscanf((char*)uart_rx_buf, "ph:%lu", &value) == 1)
+        {
+            Threshold_SetPH((uint16_t)value);
+            valid_command = 1;
+            sprintf(response, "ph:%lu OK\r\n", value);
+            HAL_UART_Transmit(&huart2, (uint8_t*)response, strlen(response), 0xFFFF);
+        }
+        
+        if(!valid_command)
+        {
+            uart_rx_len = 0;
+        }
+        
+        uart_rx_complete = 0;
+    }
+}
 /* USER CODE END 0 */
 
 UART_HandleTypeDef huart2;
@@ -84,7 +134,8 @@ void HAL_UART_MspInit(UART_HandleTypeDef* uartHandle)
     HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
   /* USER CODE BEGIN USART2_MspInit 1 */
-
+    HAL_NVIC_SetPriority(USART2_IRQn, 0, 0);
+    HAL_NVIC_EnableIRQ(USART2_IRQn);
   /* USER CODE END USART2_MspInit 1 */
   }
 }

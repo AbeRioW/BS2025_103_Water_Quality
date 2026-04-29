@@ -26,6 +26,9 @@
 /* USER CODE BEGIN Includes */
 #include "oled.h"
 #include "ds18b20.h"
+#include "threshold.h"
+#include <stdio.h>
+#include <string.h>
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -35,7 +38,7 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-
+#define BUFFER_SIZE 64
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -46,7 +49,7 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
-
+char uart_buffer[BUFFER_SIZE];
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -97,6 +100,10 @@ int main(void)
 	OLED_ColorTurn(0);
 	OLED_DisplayTurn(0);
 	OLED_Clear();
+	
+	Threshold_Init();
+	
+	__HAL_UART_ENABLE_IT(&huart2, UART_IT_RXNE);
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -144,7 +151,13 @@ int main(void)
 		OLED_ShowNum(48, 40, ph_int % 10, 1, 16, 1);
 		
 		OLED_Refresh();
-		HAL_Delay(1000);
+		
+		sprintf(uart_buffer, "Temp:%.1fC,Turbidity:%d,PH:%.1f\r\n", temp, turbidity, ph_value);
+		HAL_UART_Transmit(&huart2, (uint8_t*)uart_buffer, strlen(uart_buffer), 0xFFFF);
+		
+		UART_ProcessCommand();
+		
+		HAL_Delay(3000);
   }
   /* USER CODE END 3 */
 }
